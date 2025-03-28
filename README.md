@@ -26,3 +26,10 @@ https://github.com/users/SpicyNine11/projects/3
 https://github.com/users/SpicyNine11/projects/5
 
 UI Repo - https://github.com/SpicyNine11/BowlingSite691CapUI
+
+POST	/users/register	Register a new user
+POST	/users/login	User login
+POST	/games/start	Start a new game
+POST	/games/score	Submit score
+GET	/games/summary	Retrieve score summary
+GET	/leaderboard	Get top scores
