@@ -18,7 +18,7 @@ The Bowling Hub API provides backend services for user authentication, score tra
 - **Authentication**: Session-based authentication
 - **API Documentation**: (Swagger/Postman collection)
 
-# Development Workflow
+## Development Workflow
 Follow Agile sprints based on the Service Backlog.
 
 Track tasks in the GitHub Projects section.
