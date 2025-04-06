@@ -11,7 +11,10 @@ const LeagueModel = {
           );
           return result.rows[0];
         } catch (err) {
-          console.error('❌ DB Insert Error:', err); // <== Add this line
+          console.error('❌ DB Insert Error:', err); // Log the error for debugging
+          throw new Error('Failed to create league'); // Throw a more generic error
+          // to avoid exposing sensitive information
+          // to the client.
           throw err;
         }
       },
