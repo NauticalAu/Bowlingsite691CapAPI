@@ -1,0 +1,69 @@
+const db = require('./config/db');
+const express = require('express');
+const session = require('express-session');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 8080;
+
+// 🌐 Log every incoming request
+app.use((req, res, next) => {
+  console.log(`🌐 ${req.method} ${req.url}`);
+  next();
+});
+
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
+
+app.use((req, res, next) => {
+    if (req.method === 'GET') {
+      return next(); // Skip JSON parsing for GET
+    }
+    express.json()(req, res, next);
+  });
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+
+// 🧪 Test route to confirm the server is receiving POST requests
+app.post('/ping', (req, res) => {
+  console.log('📡 /ping received');
+  res.send('pong');
+});
+
+// 🌍 Root test route
+app.get('/', (req, res) => res.send('BowlingSite API Running'));
+
+// ✅ Register routes BEFORE starting the server
+const userRoutes = require('./routes/userRoutes');
+app.use('/api/users', userRoutes);
+
+const gameRoutes = require('./routes/gameRoutes');
+app.use('/api/games', gameRoutes);
+
+const profileRoutes = require('./routes/profileRoute');
+app.use('/api/profile', profileRoutes);
+
+const leagueRoutes = require('./routes/leagueRoutes'); 
+app.use('/api/leagues', leagueRoutes);                 
+
+// 🛑 Catch-all error handler
+app.use((err, req, res, next) => {
+  console.error('🔥 Unhandled Error:', err);
+  res.status(500).send('Something broke!');
+});
+
+// 🧯 Catch-all route for undefined paths
+app.use((req, res) => {
+  console.warn(`❓ Unmatched route: ${req.method} ${req.url}`);
+  res.status(404).send('Not Found');
+});
+
+// ✅ Start the server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
