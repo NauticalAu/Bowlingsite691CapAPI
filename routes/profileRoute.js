@@ -7,7 +7,10 @@ router.get('/', async (req, res) => {
   if (!req.session.userId) return res.status(401).json({ error: 'Not logged in' });
 
   try {
-    const result = await db.query('SELECT user_id, full_name, email FROM users WHERE user_id = $1', [req.session.userId]);
+    const result = await db.query(
+      'SELECT user_id, full_name, email FROM "user" WHERE user_id = $1',
+      [req.session.userId]
+    );
     res.json({ profile: result.rows[0] });
   } catch (err) {
     console.error(err);
@@ -22,7 +25,7 @@ router.put('/', async (req, res) => {
 
   try {
     const result = await db.query(
-      'UPDATE users SET full_name = $1, email = $2 WHERE user_id = $3 RETURNING user_id, full_name, email',
+      'UPDATE "user" SET full_name = $1, email = $2 WHERE user_id = $3 RETURNING user_id, full_name, email',
       [fullName, email, req.session.userId]
     );
     res.json({ message: 'Profile updated', profile: result.rows[0] });
@@ -33,6 +36,7 @@ router.put('/', async (req, res) => {
 });
 
 module.exports = router;
+
 // This code defines a profile route for managing user profiles.
 // It uses Express.js to create a router for handling GET and PUT requests.
 // The GET request retrieves the current user's profile based on their session ID.

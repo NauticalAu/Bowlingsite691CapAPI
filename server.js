@@ -53,6 +53,12 @@ app.use('/api/profile', profileRoutes);
 const leagueRoutes = require('./routes/leagueRoutes'); 
 app.use('/api/leagues', leagueRoutes);                 
 
+const tournamentRoutes = require('./routes/tournamentRoutes');
+app.use('/api/tournaments', tournamentRoutes);
+
+const alleyRoutes = require('./routes/alleyRoutes');
+app.use('/api/alleys', alleyRoutes);
+
 // 🛑 Catch-all error handler
 app.use((err, req, res, next) => {
   console.error('🔥 Unhandled Error:', err);
