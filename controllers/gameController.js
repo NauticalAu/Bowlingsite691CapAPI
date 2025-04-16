@@ -14,38 +14,20 @@ const startGame = async (req, res) => {
 
 const submitScore = async (req, res) => {
   try {
-    console.log('🔥 /api/games/score hit');
-    console.log('📝 Frame Submission:', {
-      frame: req.body.frame,
-      firstRoll: req.body.firstRoll,
-      secondRoll: req.body.secondRoll,
-      bonusRoll: req.body.bonusRoll
-    });
-
     const { gameId, frame, firstRoll, secondRoll, bonusRoll } = req.body;
 
-    if (!gameId || !frame || firstRoll == null) {
-      return res.status(400).json({ error: 'Missing required score fields' });
-    }
+    console.log('🔥 /api/games/score hit');
+    console.log('📝 Frame Submission:', { gameId, frame, firstRoll, secondRoll, bonusRoll });
 
-    const result = await Game.addScore(
-      gameId,
-      frame,
-      firstRoll,
-      secondRoll || null,
-      bonusRoll || null
-    );
+    // ✅ This line inserts the frame into the database
+    const result = await Game.addScore(gameId, frame, firstRoll, secondRoll, bonusRoll);
 
-    const totalScore = await calculateScores(gameId);
+    console.log('✅ Frame saved in controller:', result);
 
-    res.json({
-      message: 'Score submitted and calculated',
-      result,
-      totalScore
-    });
+    res.json({ message: 'Score submitted successfully', result });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to submit score' });
+    console.error('❌ Failed to insert score:', err.message);
+    res.status(500).json({ error: 'Failed to insert score' });
   }
 };
 
