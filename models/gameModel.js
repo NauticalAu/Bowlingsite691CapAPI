@@ -9,17 +9,28 @@ const createGame = async (userId) => {
 };
 
 const addScore = async (gameId, frameNumber, firstRoll, secondRoll = null, bonusRoll = null) => {
-  console.log('📥 addScore():', { gameId, frameNumber, firstRoll, secondRoll, bonusRoll });
+  console.log('📥 addScore():', {
+    gameId,
+    frameNumber,
+    firstRoll,
+    secondRoll,
+    bonusRoll
+  });
 
-  const result = await db.query(
-    `INSERT INTO frame (game_id, frame_number, first_roll, second_roll, bonus_roll)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING *`,
-    [gameId, frameNumber, firstRoll, secondRoll, bonusRoll]
-  );
+  try {
+    const result = await db.query(
+      `INSERT INTO frame (game_id, frame_number, first_roll, second_roll, bonus_roll)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [gameId, frameNumber, firstRoll, secondRoll, bonusRoll]
+    );
 
-  console.log('✅ Frame saved:', result.rows[0]);
-  return result.rows[0];
+    console.log('✅ Frame saved:', result.rows[0]);
+    return result.rows[0];
+  } catch (err) {
+    console.error('❌ Frame insert error:', err.message);
+    throw err; // rethrow to be caught in your controller
+  }
 };
 
 const getUserGames = async (userId) => {
