@@ -9,7 +9,7 @@ const createGame = async (userId) => {
 };
 
 const addScore = async (gameId, frameNumber, firstRoll, secondRoll = null, bonusRoll = null) => {
-  console.log('📥 Saving frame:', { gameId, frameNumber, firstRoll, secondRoll, bonusRoll });
+  console.log('📥 addScore():', { gameId, frameNumber, firstRoll, secondRoll, bonusRoll });
 
   const result = await db.query(
     `INSERT INTO frame (game_id, frame_number, first_roll, second_roll, bonus_roll)
@@ -21,7 +21,6 @@ const addScore = async (gameId, frameNumber, firstRoll, secondRoll = null, bonus
   console.log('✅ Frame saved:', result.rows[0]);
   return result.rows[0];
 };
-
 
 const getUserGames = async (userId) => {
   const query = `
