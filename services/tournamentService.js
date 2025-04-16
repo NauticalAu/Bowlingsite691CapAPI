@@ -3,7 +3,13 @@ const db = require('../config/db');
 
 // Get all tournaments
 exports.getAll = async () => {
-  const result = await db.query('SELECT * FROM tournament ORDER BY start_date');
+  const result = await db.query(`
+    SELECT t.*, a.name AS alley_name
+    FROM tournament t
+    LEFT JOIN bowling_alleys a ON t.bowling_alley_id = a.id
+    WHERE t.start_date >= CURRENT_DATE
+    ORDER BY t.start_date ASC
+  `);
   return result.rows;
 };
 

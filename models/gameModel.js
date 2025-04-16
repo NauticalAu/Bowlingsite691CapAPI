@@ -19,17 +19,21 @@ const addScore = async (gameId, frame, pins) => {
 const getUserGames = async (userId) => {
   const query = `
     SELECT 
-      g.game_id AS game_id,  
-      s.frame,
-      s.pins
+      g.game_id AS game_id,
+      f.frame_number,
+      f.first_roll,
+      f.second_roll,
+      f.bonus_roll,
+      f.frame_score
     FROM game g
-    JOIN score s ON g.game_id = s.game_id  
+    JOIN frame f ON g.game_id = f.game_id
     WHERE g.user_id = $1
-    ORDER BY g.game_id, s.frame           
+    ORDER BY g.game_id, f.frame_number
   `;
   const result = await db.query(query, [userId]);
   return result.rows;
 };
+
 
 module.exports = {
   createGame,
