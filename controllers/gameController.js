@@ -15,7 +15,12 @@ const startGame = async (req, res) => {
 const submitScore = async (req, res) => {
   try {
     console.log('🔥 /api/games/score hit');
-    console.log('📝 Frame Submission:', req.body);
+    console.log('📝 Frame Submission:', {
+      frame: req.body.frame,
+      firstRoll: req.body.firstRoll,
+      secondRoll: req.body.secondRoll,
+      bonusRoll: req.body.bonusRoll
+    });
 
     const { gameId, frame, firstRoll, secondRoll, bonusRoll } = req.body;
 
