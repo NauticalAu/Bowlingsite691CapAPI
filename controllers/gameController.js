@@ -1,4 +1,5 @@
 const Game = require('../models/gameModel');
+const { calculateScores } = require('../services/scoreService'); 
 
 const startGame = async (req, res) => {
   try {
@@ -13,9 +14,29 @@ const startGame = async (req, res) => {
 
 const submitScore = async (req, res) => {
   try {
-    const { gameId, frame, pins } = req.body;
-    const result = await Game.addScore(gameId, frame, pins);
-    res.json({ message: 'Score submitted', result });
+    console.log('📝 Incoming Frame Submission:', req.body);
+
+    const { gameId, frame, firstRoll, secondRoll, bonusRoll } = req.body;
+
+    if (!gameId || !frame || firstRoll == null) {
+      return res.status(400).json({ error: 'Missing required score fields' });
+    }
+
+    const result = await Game.addScore(
+      gameId,
+      frame,
+      firstRoll,
+      secondRoll || null,
+      bonusRoll || null
+    );
+
+    const totalScore = await calculateScores(gameId);
+
+    res.json({
+      message: 'Score submitted and calculated',
+      result,
+      totalScore
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to submit score' });
@@ -25,7 +46,7 @@ const submitScore = async (req, res) => {
 const getSummary = async (req, res) => {
   try {
     const userId = req.session.userId;
-    console.log('🔍 userId from session:', req.session.userId);
+    console.log('🔍 userId from session:', userId);
 
     const summary = await Game.getUserGames(userId);
     res.json({ summary });
@@ -40,4 +61,3 @@ module.exports = {
   submitScore,
   getSummary
 };
-// This code defines a gameController for managing bowling games.   

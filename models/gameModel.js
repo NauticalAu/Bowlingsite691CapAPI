@@ -8,10 +8,12 @@ const createGame = async (userId) => {
   return result.rows[0];
 };
 
-const addScore = async (gameId, frame, pins) => {
+const addScore = async (gameId, frameNumber, firstRoll, secondRoll = null, bonusRoll = null) => {
   const result = await db.query(
-    `INSERT INTO score (game_id, frame, pins) VALUES ($1, $2, $3) RETURNING *`,
-    [gameId, frame, pins]
+    `INSERT INTO frame (game_id, frame_number, first_roll, second_roll, bonus_roll)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
+    [gameId, frameNumber, firstRoll, secondRoll, bonusRoll]
   );
   return result.rows[0];
 };
