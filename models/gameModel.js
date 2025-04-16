@@ -17,19 +17,19 @@ const addScore = async (gameId, frame, pins) => {
 };
 
 const getUserGames = async (userId) => {
-    const query = `
-      SELECT 
-        g.id AS game_id,
-        s.frame,
-        s.pins
-      FROM game g
-      JOIN score s ON g.id = s.game_id
-      WHERE g.user_id = $1
-      ORDER BY g.id, s.frame
-    `;
-    const result = await db.query(query, [userId]);
-    return result.rows;
-  };
+  const query = `
+    SELECT 
+      g.game_id AS game_id,  
+      s.frame,
+      s.pins
+    FROM game g
+    JOIN score s ON g.game_id = s.game_id  
+    WHERE g.user_id = $1
+    ORDER BY g.game_id, s.frame           
+  `;
+  const result = await db.query(query, [userId]);
+  return result.rows;
+};
 
 module.exports = {
   createGame,
