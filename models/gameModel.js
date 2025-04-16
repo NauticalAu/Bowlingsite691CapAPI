@@ -26,10 +26,25 @@ const addScore = async (gameId, frameNumber, firstRoll, secondRoll = null, bonus
     );
 
     console.log('✅ Frame saved:', result.rows[0]);
+
+    // ✅ Update total_score in the game table after insert
+    await db.query(
+      `UPDATE game
+       SET total_score = (
+         SELECT COALESCE(SUM(
+           COALESCE(first_roll, 0) + COALESCE(second_roll, 0) + COALESCE(bonus_roll, 0)
+         ), 0)
+         FROM frame
+         WHERE game_id = $1
+       )
+       WHERE game_id = $1`,
+      [gameId]
+    );
+
     return result.rows[0];
   } catch (err) {
     console.error('❌ Frame insert error:', err.message);
-    throw err; // rethrow to be caught in your controller
+    throw err;
   }
 };
 
@@ -51,12 +66,12 @@ const getUserGames = async (userId) => {
   return result.rows;
 };
 
-
 module.exports = {
   createGame,
   addScore,
   getUserGames
 };
+
 // This code defines a gameModel for managing bowling games.
 // It uses the pg library to interact with a PostgreSQL database.
 // The model includes functions to create a new game, add scores to a game, and retrieve user games.
