@@ -32,14 +32,17 @@ app.use((req, res, next) => {
   });
 
   app.use(session({
-    secret: process.env.SESSION_SECRET,
+    name: 'connect.sid', 
+    secret: process.env.SESSION_SECRET || 'super-secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,          // ✅ send cookies only over HTTPS
-      sameSite: 'none'       // ✅ allow cross-site cookies
+      secure: true,        // ✅ Required for HTTPS
+      httpOnly: true,      // ✅ Best practice: prevents JS access
+      sameSite: 'none'     // ✅ Allows cross-site cookies
     }
   }));
+  
 
 // 🧪 Test route to confirm the server is receiving POST requests
 app.post('/ping', (req, res) => {
