@@ -31,6 +31,8 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   });
 
+  app.set('trust proxy', 1); // Trust first proxy for secure cookies
+
   app.use(session({
     name: 'connect.sid', 
     secret: process.env.SESSION_SECRET || 'super-secret',
