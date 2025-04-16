@@ -31,11 +31,15 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   });
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false
-}));
+  app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: true,          // ✅ send cookies only over HTTPS
+      sameSite: 'none'       // ✅ allow cross-site cookies
+    }
+  }));
 
 // 🧪 Test route to confirm the server is receiving POST requests
 app.post('/ping', (req, res) => {
