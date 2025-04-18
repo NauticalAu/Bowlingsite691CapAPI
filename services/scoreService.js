@@ -23,25 +23,31 @@ const calculateScores = async (gameId) => {
       frameScore = (first_roll || 0) + (second_roll || 0) + (bonus_roll || 0);
     } else if (first_roll === 10) {
       // Strike
-      frameScore = 10 + 
-        (next?.first_roll || 0) + 
-        (next?.first_roll === 10 ? (next2?.first_roll || 0) : (next?.second_roll || 0));
+        if (frame_number === 9) && next) {
+        // Special case for 9th frame strike
+        frameScore = 10 + (next?.first_roll || 0) + (next?.second_roll || 0);
+      } else {
+        const bouns1 = next?.first_roll || 0;
+        const bouns2 = 
+            next?.first_roll === 10 
+            ? next2?.first_roll || 0
+            : next?.second_roll || 0;
+            
+            frameScore = 10 + bonus1 + bonus2;
+      } 
     } else if ((first_roll || 0) + (second_roll || 0) === 10) {
-      // Spare
-      frameScore = 10 + (next?.first_roll || 0);
+        frameScore = 10 + (next?.first_roll || 0);
     } else {
-      // Open frame
-      frameScore = (first_roll || 0) + (second_roll || 0);
+        frameScore = (first_roll || 0) + (second_roll || 0);
+      }
+
+      cumulativeScore += frameScore;
+
+      await db.query(
+        `UPDATE frame SET frame_score = $1 WHERE frame_id = $2`,
+        [frameScore, current.frame_id]
+      );
     }
-
-    cumulativeScore += frameScore;
-
-    // Update the frame_score column
-    await db.query(
-      `UPDATE frame SET frame_score = $1 WHERE frame_id = $2`,
-      [frameScore, current.frame_id]
-    );
-  }
 
   // Update the total_score on the game
   await db.query(
