@@ -28,19 +28,20 @@ router.get('/search', async (req, res) => {
     }
 
     const { lat, lng } = geoData.results[0].geometry.location;
-
-    // After getting geocoded lat/lng
     console.log('📍 Geocoded location:', lat, lng);
 
     // Step 2: Nearby Search for bowling alleys
     const placesRes = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
       params: {
         location: `${lat},${lng}`,
-        radius: 50000, // 50km radius
+        radius: 50000, // 50km radius (~30 miles)
         keyword: 'bowling alley',
         key: GOOGLE_API_KEY
       }
     });
+
+    // ✅ Log raw response before returning
+    console.log('🎯 Google Places response:', JSON.stringify(placesRes.data, null, 2));
 
     const results = placesRes.data.results.map(place => ({
       name: place.name,
@@ -56,9 +57,6 @@ router.get('/search', async (req, res) => {
     console.error('Google API error:', err.response?.data || err.message);
     res.status(500).json({ error: 'Something went wrong with the Google API' });
   }
-
-  // After getting the Places API response
-    console.log('🎯 Google Places response:', JSON.stringify(placesRes.data, null, 2));
 });
 
 module.exports = router;
