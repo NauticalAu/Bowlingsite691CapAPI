@@ -18,7 +18,7 @@ router.get('/search', async (req, res) => {
       'https://maps.googleapis.com/maps/api/place/textsearch/json',
       {
         params: {
-          query: `bowling alley in ${zip}`,
+          query: `bowling alley near ${zip}`,
           key: GOOGLE_API_KEY
         }
       }
