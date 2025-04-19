@@ -77,6 +77,12 @@ app.use('/api/alleys', alleyRoutes);
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
 app.use('/api/leaderboard', leaderboardRoutes);
 
+const blogRoutes = require('./routes/blogRoutes');
+app.use('/api/blog', blogRoutes);
+
+const favoriteRoutes = require('./routes/favoriteRoutes');
+app.use('/api/favorites', favoriteRoutes);
+
 
 // 🛑 Catch-all error handler
 app.use((err, req, res, next) => {
