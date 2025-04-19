@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Load the shared PostgreSQL pool
-const pool = require('../db');
+const pool = require('../config/db');
 
 // Auth middleware to protect the route (adjust if you're using token or session-based auth)
 const authenticate = require('../middleware/auth');
@@ -68,3 +68,9 @@ router.delete('/:id', authenticate, async (req, res) => {
 });
 
 module.exports = router;
+// This code defines a set of routes for managing user favorites in a bowling alley application.
+// It uses Express.js to create a router for handling HTTP requests.
+// The routes include:
+// - POST /api/favorites: Save a new favorite bowling alley for the authenticated user.
+// - GET /api/favorites: List all of the user's favorite bowling alleys.
+// - DELETE /api/favorites/:id: Remove a specific favorite bowling alley by its ID.
