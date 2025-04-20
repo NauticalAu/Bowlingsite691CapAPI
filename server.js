@@ -73,7 +73,7 @@ const leaderboardRoutes = require('./routes/leaderboardRoutes');
 app.use('/api/leaderboard', leaderboardRoutes);
 
 const blogRoutes = require('./routes/blogRoutes');
-app.use('/api/blog', blogRoutes);
+app.use('/api/blogs', blogRoutes);
 
 const favoriteRoutes = require('./routes/favoriteRoutes');
 app.use('/api/favorites', favoriteRoutes);
