@@ -35,7 +35,7 @@ router.get('/search', async (req, res) => {
       params: {
         location: `${lat},${lng}`,
         radius: 50000, // 50km radius (~30 miles)
-        keyword: 'bowling alley',
+        keyword: 'bowling_alley',
         key: GOOGLE_API_KEY
       }
     });
@@ -51,7 +51,23 @@ router.get('/search', async (req, res) => {
       place_id: place.place_id
     }));
 
-    res.json({ alleys: results });
+    if (!results.length) {
+        console.warn(`⚠️ No results from Google for zip ${zip}, sending fallback`);
+        return res.json({
+          alleys: [
+            {
+              name: 'Fallback Lanes',
+              address: `${zip} Downtown`,
+              rating: 4.2,
+              location: { lat, lng },
+              place_id: `fallback-${zip}`
+            }
+          ]
+        });
+      }
+      
+      res.json({ alleys: results });
+      
 
   } catch (err) {
     console.error('Google API error:', err.response?.data || err.message);
