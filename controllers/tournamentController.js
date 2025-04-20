@@ -16,8 +16,16 @@ exports.createTournament = async (req, res) => {
 };
 
 exports.joinTournament = async (req, res) => {
-  const result = await tournamentService.join(req.params.id, req.body.userId);
-  res.json(result);
+  const userId = req.session.userId;
+  const tournamentId = req.params.id;
+
+  try {
+    const result = await tournamentService.join(tournamentId, userId);
+    res.json(result);
+  } catch (err) {
+    console.error('Error joining tournament:', err);
+    res.status(500).json({ error: 'Failed to join tournament' });
+  }
 };
 
 exports.getParticipants = async (req, res) => {
@@ -30,10 +38,18 @@ exports.getParticipants = async (req, res) => {
     }
   };
 
-exports.leaveTournament = async (req, res) => {
-  const result = await tournamentService.leave(req.params.id, req.body.userId);
-  res.json(result);
-};
+  exports.leaveTournament = async (req, res) => {
+    const userId = req.session.userId;
+    const tournamentId = req.params.id;
+  
+    try {
+      const result = await tournamentService.leave(tournamentId, userId);
+      res.json(result);
+    } catch (err) {
+      console.error('Error leaving tournament:', err);
+      res.status(500).json({ error: 'Failed to leave tournament' });
+    }
+  };
 
 exports.getTournamentsByAlleyId = async (req, res) => {
     try {

@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const tournamentController = require('../controllers/tournamentController');
 const tournamentService = require('../services/tournamentService'); // ✅ required
+const authenticate = require('../middleware/auth');
 
 router.get('/', tournamentController.getAllTournaments);
 router.post('/', tournamentController.createTournament);
-router.post('/:id/join', tournamentController.joinTournament);
+router.post('/:id/join', authenticate, tournamentController.joinTournament);
 router.delete('/:id/leave', tournamentController.leaveTournament);
 
 router.get('/:id/participants', async (req, res) => {

@@ -1,6 +1,5 @@
 const db = require('../config/db');
 
-
 // Get all tournaments
 exports.getAll = async () => {
   const result = await db.query(`
@@ -13,9 +12,9 @@ exports.getAll = async () => {
   return result.rows;
 };
 
-// Get tournament by ID
+// Get tournament by ID (✅ fixed column name)
 exports.getById = async (id) => {
-  const result = await db.query('SELECT * FROM tournament WHERE id = $1', [id]);
+  const result = await db.query('SELECT * FROM tournament WHERE tournament_id = $1', [id]);
   return result.rows[0];
 };
 
@@ -33,14 +32,13 @@ exports.create = async (data) => {
   return result.rows[0];
 };
 
-// Delete a tournament
+// Delete a tournament (✅ fixed wrong db object and column name)
 exports.delete = async (tournamentId) => {
-    await db.query('DELETE FROM tournament WHERE id = $1', [tournamentId]);
-  };
-  
-  
+  await db.query('DELETE FROM tournament WHERE tournament_id = $1', [tournamentId]);
+  return { message: 'Tournament deleted' };
+};
 
-// Join a tournament
+// Join a tournament (✅ already correct)
 exports.join = async (tournamentId, userId) => {
   await db.query(
     `INSERT INTO tournament_participants (tournament_id, user_id)
@@ -50,7 +48,7 @@ exports.join = async (tournamentId, userId) => {
   return { message: 'Joined tournament' };
 };
 
-// Leave a tournament
+// Leave a tournament (✅ already correct)
 exports.leave = async (tournamentId, userId) => {
   await db.query(
     `DELETE FROM tournament_participants
@@ -59,6 +57,7 @@ exports.leave = async (tournamentId, userId) => {
   );
   return { message: 'Left tournament' };
 };
+
 // Get participants of a tournament
 exports.getParticipants = async (tournamentId) => {
   const result = await db.query(
@@ -70,6 +69,7 @@ exports.getParticipants = async (tournamentId) => {
   );
   return result.rows;
 };
+
 // Get tournaments by alley ID
 exports.getByAlleyId = async (alleyId) => {
   const result = await db.query(
@@ -78,12 +78,12 @@ exports.getByAlleyId = async (alleyId) => {
   );
   return result.rows;
 };
+
 // Get tournaments by organizer ID
 exports.getByOrganizerId = async (organizerId) => {
-    const result = await db.query(
-      `SELECT * FROM tournament WHERE organizer_id = $1 ORDER BY start_date`,
-      [organizerId]
-    );
-    return result.rows;
-  };
-  
+  const result = await db.query(
+    `SELECT * FROM tournament WHERE organizer_id = $1 ORDER BY start_date`,
+    [organizerId]
+  );
+  return result.rows;
+};
