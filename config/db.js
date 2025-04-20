@@ -3,7 +3,9 @@ require('dotenv').config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: false // Set to true if using RDS or remote DB with SSL
+  ssl: {
+    rejectUnauthorized: false // ✅ Required for Render and other hosted PG
+  }
 });
 
 pool.connect()
@@ -11,6 +13,7 @@ pool.connect()
   .catch((err) => console.error('Database connection error ❌', err.stack));
 
 module.exports = pool;
+
 // This code connects to a PostgreSQL database using the pg library.
 // It uses environment variables to get the database connection string.
 // The connection string is stored in a .env file.
