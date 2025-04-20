@@ -24,12 +24,7 @@ app.use(cors({
 }));
 
 
-app.use((req, res, next) => {
-    if (req.method === 'GET') {
-      return next(); // Skip JSON parsing for GET
-    }
-    express.json()(req, res, next);
-  });
+app.use(express.json());
 
   app.set('trust proxy', 1); // Trust first proxy for secure cookies
 
