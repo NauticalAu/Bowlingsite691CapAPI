@@ -7,51 +7,56 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 // GET /api/alleys/search?zip=90210
 router.get('/search', async (req, res) => {
-  const { zip } = req.query;
-
-  if (!zip || !/^\d{5}$/.test(zip)) {
-    return res.status(400).json({ error: 'Invalid zip code' });
-  }
-
-  try {
-    // Step 1: Geocode the ZIP to get lat/lng
-    const geoRes = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-      params: {
-        address: zip,
-        key: GOOGLE_API_KEY
-      }
-    });
-
-    const geoData = geoRes.data;
-    if (!geoData.results.length) {
-      return res.status(404).json({ error: 'Could not find location for zip code' });
+    const { zip } = req.query;
+  
+    console.log('🔍 ZIP received:', zip);
+  
+    if (!zip || !/^\d{5}$/.test(zip)) {
+      console.log('❌ Invalid ZIP');
+      return res.status(400).json({ error: 'Invalid zip code' });
     }
-
-    const { lat, lng } = geoData.results[0].geometry.location;
-    console.log('📍 Geocoded location:', lat, lng);
-
-    // Step 2: Nearby Search for bowling alleys
-    const placesRes = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
-      params: {
-        location: `${lat},${lng}`,
-        radius: 50000, // 50km radius (~30 miles)
-        keyword: 'bowling_alley',
-        key: GOOGLE_API_KEY
+  
+    try {
+      console.log('📦 Step 1: Geocoding...');
+      const geoRes = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+        params: {
+          address: zip,
+          key: GOOGLE_API_KEY
+        }
+      });
+  
+      const geoData = geoRes.data;
+      console.log('📦 Geocode Response:', JSON.stringify(geoData, null, 2));
+  
+      if (!geoData.results.length) {
+        console.log('❌ No geocode results');
+        return res.status(404).json({ error: 'Could not find location for zip code' });
       }
-    });
-
-    // ✅ Log raw response before returning
-    console.log('🎯 Google Places response:', JSON.stringify(placesRes.data, null, 2));
-
-    const results = placesRes.data.results.map(place => ({
-      name: place.name,
-      address: place.vicinity,
-      rating: place.rating,
-      location: place.geometry?.location,
-      place_id: place.place_id
-    }));
-
-    if (!results.length) {
+  
+      const { lat, lng } = geoData.results[0].geometry.location;
+      console.log('📍 Geocoded location:', lat, lng);
+  
+      console.log('📦 Step 2: Nearby search...');
+      const placesRes = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
+        params: {
+          location: `${lat},${lng}`,
+          radius: 50000,
+          type: 'bowling_alley',
+          key: GOOGLE_API_KEY
+        }
+      });
+  
+      console.log('🎯 Google Places response:', JSON.stringify(placesRes.data, null, 2));
+  
+      const results = placesRes.data.results.map(place => ({
+        name: place.name,
+        address: place.vicinity,
+        rating: place.rating,
+        location: place.geometry?.location,
+        place_id: place.place_id
+      }));
+  
+      if (!results.length) {
         console.warn(`⚠️ No results from Google for zip ${zip}, sending fallback`);
         return res.json({
           alleys: [
@@ -65,15 +70,15 @@ router.get('/search', async (req, res) => {
           ]
         });
       }
-      
+  
       res.json({ alleys: results });
-      
-
-  } catch (err) {
-    console.error('Google API error:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Something went wrong with the Google API' });
-  }
-});
+  
+    } catch (err) {
+      console.error('❌ Google API error:', err.response?.data || err.message);
+      res.status(500).json({ error: 'Something went wrong with the Google API' });
+    }
+  });
+  
 
 module.exports = router;
 // This code defines a route for searching bowling alleys by ZIP code using the Google Places API.
