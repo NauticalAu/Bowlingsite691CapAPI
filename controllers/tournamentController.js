@@ -70,4 +70,22 @@ exports.deleteTournament = async (req, res) => {
       res.status(500).json({ error: 'Failed to delete tournament' });
     }
   };
+
+// Update a tournament
+exports.updateTournament = async (req, res) => {
+  try {
+    const id      = req.params.id;
+    const changes = req.body; // e.g. { name, description, start_date, end_date, bowling_alley_id }
+
+    const updated = await tournamentService.update(id, changes);
+    if (!updated) {
+      return res.status(404).json({ error: 'Tournament not found' });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    console.error('❌ Failed to update tournament:', err);
+    res.status(500).json({ error: 'Failed to update tournament' });
+  }
+};  
   

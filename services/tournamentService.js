@@ -38,6 +38,30 @@ exports.delete = async (tournamentId) => {
   return { message: 'Tournament deleted' };
 };
 
+// Update a tournament (✅ fixed wrong db object and column name)
+exports.update = async (tournamentId, changes) => {
+  const keys = Object.keys(changes);
+  if (!keys.length) return null;
+
+  // Build "col1 = $2, col2 = $3, …" dynamically
+  const setClause = keys
+    .map((col, i) => `${col} = $${i + 2}`)
+    .join(', ');
+
+  const values = [tournamentId, ...keys.map(k => changes[k])];
+
+  const result = await db.query(
+    `UPDATE tournament
+       SET ${setClause}
+     WHERE tournament_id = $1
+     RETURNING *`,
+    values
+  );
+
+  return result.rows[0];  // will be undefined if no row was found
+};
+
+
 // Join a tournament (✅ already correct)
 exports.join = async (tournamentId, userId) => {
   await db.query(
