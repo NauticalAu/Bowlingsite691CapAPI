@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const blog = require('../models/blogModel');
+const db = require('../config/db');
+
 
 router.get('/', async (req, res) => {
   const posts = await blog.getAllPosts();
