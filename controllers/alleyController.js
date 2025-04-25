@@ -1,7 +1,8 @@
-const axios        = require('axios');
-const alleyService = require('../services/alleyService');
+// src/controllers/alleyController.js
+const axios = require('axios');
 
-// Handles GET /api/alleys/search?zip=#####
+// GET /api/alleys?zip=#####
+// — geocode the ZIP, then nearbySearch for bowling alleys
 exports.searchByZip = async (req, res) => {
   const zip = req.query.zip;
   if (!zip || !/^\d{5}$/.test(zip)) {
@@ -9,50 +10,88 @@ exports.searchByZip = async (req, res) => {
   }
 
   try {
-    const alleys = await alleyService.findByZip(zip);
-    return res.json({ alleys });
+    // 1️⃣ Geocode ZIP → {lat,lng}
+    const geo = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+      params: { address: zip, key: process.env.GOOGLE_PLACES_API_KEY }
+    });
+    if (!geo.data.results?.length) {
+      return res.status(404).json({ error: 'Could not find location for zip code' });
+    }
+    const { lat, lng } = geo.data.results[0].geometry.location;
+
+    // 2️⃣ Nearby search for bowling_alley
+    const places = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
+      params: {
+        location: `${lat},${lng}`,
+        radius: 50000,
+        type: 'bowling_alley',
+        key: process.env.GOOGLE_PLACES_API_KEY
+      }
+    });
+
+    const results = places.data.results.map(p => ({
+      name:     p.name,
+      address:  p.vicinity,
+      rating:   p.rating,
+      location: p.geometry?.location,
+      place_id: p.place_id
+    }));
+
+    // fallback if Google returns nothing
+    if (!results.length) {
+      return res.json({
+        alleys: [{
+          name:       'Fallback Lanes',
+          address:    `${zip} area`,
+          rating:     4.2,
+          location:   { lat, lng },
+          place_id:   `fallback-${zip}`
+        }]
+      });
+    }
+
+    res.json({ alleys: results });
   } catch (err) {
-    console.error('Error fetching alleys by zip:', err);
-    return res.status(500).json({ error: 'Failed to load alleys' });
+    console.error('❌ Google API error in searchByZip:', err.response?.data || err.message);
+    res.status(500).json({ error: 'Something went wrong with the Google API' });
   }
 };
 
-// Handles GET /api/alleys/:placeId
+// GET /api/alleys/:placeId
+// — simple Place Details lookup
 exports.getAlleyByPlaceId = async (req, res) => {
   const placeId = req.params.placeId;
-
   try {
-    const response = await axios.get(
+    const r = (await axios.get(
       'https://maps.googleapis.com/maps/api/place/details/json',
       {
         params: {
           place_id: placeId,
-          key:      process.env.GOOGLE_API_KEY,   // ← use your actual env var
+          key:      process.env.GOOGLE_PLACES_API_KEY,
           fields:   'name,formatted_address,formatted_phone_number,website,opening_hours,rating'
         }
       }
-    );
+    )).data;
 
-    const data = response.data;
-    if (data.status !== 'OK' || !data.result) {
-      console.error('Places API error:', data.status, data.error_message);
+    if (r.status !== 'OK' || !r.result) {
+      console.error('Places API error:', r.status, r.error_message);
       return res
         .status(404)
-        .json({ error: data.error_message || 'Place not found', status: data.status });
+        .json({ error: r.error_message || 'Place not found', status: r.status });
     }
 
-    const r = data.result;
-    return res.json({
+    const p = r.result;
+    res.json({
       place_id:    placeId,
-      name:        r.name,
-      address:     r.formatted_address,
-      phone:       r.formatted_phone_number,
-      website_url: r.website || null,
-      open_hours:  r.opening_hours?.weekday_text || [],
-      rating:      r.rating || null
+      name:        p.name,
+      address:     p.formatted_address,
+      phone:       p.formatted_phone_number,
+      website_url: p.website || null,
+      open_hours:  p.opening_hours?.weekday_text || [],
+      rating:      p.rating || null
     });
   } catch (err) {
     console.error('❌ Failed to fetch place details:', err);
-    return res.status(500).json({ error: 'Failed to load alley details' });
+    res.status(500).json({ error: 'Failed to load alley details' });
   }
 };
