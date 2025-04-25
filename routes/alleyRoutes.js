@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 require('dotenv').config();
+const alleyController   = require('../controllers/alleyController');
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
