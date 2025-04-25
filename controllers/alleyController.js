@@ -12,7 +12,7 @@ exports.searchByZip = async (req, res) => {
   try {
     // 1️⃣ Geocode ZIP → {lat,lng}
     const geo = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-      params: { address: zip, key: process.env.GOOGLE_PLACES_API_KEY }
+      params: { address: zip, key: process.env.GOOGLE_API_KEY }
     });
     if (!geo.data.results?.length) {
       return res.status(404).json({ error: 'Could not find location for zip code' });
@@ -25,7 +25,7 @@ exports.searchByZip = async (req, res) => {
         location: `${lat},${lng}`,
         radius: 50000,
         type: 'bowling_alley',
-        key: process.env.GOOGLE_PLACES_API_KEY
+        key: process.env.GOOGLE_API_KEY
       }
     });
 
@@ -67,7 +67,7 @@ exports.getAlleyByPlaceId = async (req, res) => {
       {
         params: {
           place_id: placeId,
-          key:      process.env.GOOGLE_PLACES_API_KEY,
+          key:      process.env.GOOGLE_API_KEY,
           fields:   'name,formatted_address,formatted_phone_number,website,opening_hours,rating'
         }
       }
