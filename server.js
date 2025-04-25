@@ -81,6 +81,9 @@ app.use('/api/favorites', favoriteRoutes);
 const reviewRoutes = require('./routes/reviewRoutes');
 app.use('/api/places/:placeId/reviews', reviewRoutes);
 
+const morgan = require('morgan');
+app.use(morgan('combined', { stream: logger.stream }));
+
 
 // 🛑 Catch-all error handler
 app.use((err, req, res, next) => {

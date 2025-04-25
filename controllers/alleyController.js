@@ -1,24 +1,26 @@
-// src/controllers/alleyController.js
-const axios = require('axios');
+const axios        = require('axios');
+const alleyService = require('../services/alleyService');
 
-// GET /api/alleys?zip=xxxxx
-exports.getAlleysByZip = async (req, res) => {
+// Handles GET /api/alleys?zip=#####
+exports.searchByZip = async (req, res) => {
   const zip = req.query.zip;
-  if (!zip) {
-    return res.status(400).json({ error: 'Zip code is required' });
+  if (!zip || !/^\d{5}$/.test(zip)) {
+    return res.status(400).json({ error: 'Invalid zip code' });
   }
+
   try {
-    const alleys = await require('../services/alleyService').findByZip(zip);
-    res.json({ alleys });
+    const alleys = await alleyService.findByZip(zip);
+    return res.json({ alleys });
   } catch (err) {
     console.error('Error fetching alleys by zip:', err);
-    res.status(500).json({ error: 'Failed to load alleys' });
+    return res.status(500).json({ error: 'Failed to load alleys' });
   }
 };
 
-// GET /api/alleys/:placeId
+// Handles GET /api/alleys/:placeId
 exports.getAlleyByPlaceId = async (req, res) => {
   const placeId = req.params.placeId;
+
   try {
     const response = await axios.get(
       'https://maps.googleapis.com/maps/api/place/details/json',
@@ -33,13 +35,14 @@ exports.getAlleyByPlaceId = async (req, res) => {
 
     const data = response.data;
     if (data.status !== 'OK' || !data.result) {
+      console.error('Places API error:', data.status, data.error_message);
       return res
         .status(404)
         .json({ error: data.error_message || 'Place not found', status: data.status });
     }
 
     const r = data.result;
-    res.json({
+    return res.json({
       place_id:    placeId,
       name:        r.name,
       address:     r.formatted_address,
@@ -50,6 +53,6 @@ exports.getAlleyByPlaceId = async (req, res) => {
     });
   } catch (err) {
     console.error('❌ Failed to fetch place details:', err);
-    res.status(500).json({ error: 'Failed to load alley details' });
+    return res.status(500).json({ error: 'Failed to load alley details' });
   }
 };
