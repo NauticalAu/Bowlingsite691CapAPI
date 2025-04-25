@@ -1,7 +1,7 @@
 const axios        = require('axios');
 const alleyService = require('../services/alleyService');
 
-// Handles GET /api/alleys?zip=#####
+// Handles GET /api/alleys/search?zip=#####
 exports.searchByZip = async (req, res) => {
   const zip = req.query.zip;
   if (!zip || !/^\d{5}$/.test(zip)) {
@@ -27,8 +27,8 @@ exports.getAlleyByPlaceId = async (req, res) => {
       {
         params: {
           place_id: placeId,
-          key: process.env.GOOGLE_PLACES_API_KEY,
-          fields: 'name,formatted_address,formatted_phone_number,website,opening_hours,rating'
+          key:      process.env.GOOGLE_API_KEY,   // ← use your actual env var
+          fields:   'name,formatted_address,formatted_phone_number,website,opening_hours,rating'
         }
       }
     );
