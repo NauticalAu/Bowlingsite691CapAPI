@@ -3,14 +3,19 @@ const db = require('../config/db');
 // List reviews for a given place_id
 exports.getByPlace = async (placeId) => {
   const res = await db.query(
-    `SELECT r.review_id, r.rating, r.content, r.created_at,
-            u.full_name AS reviewer
-       FROM review r
-       JOIN user u ON r.user_id = u.user_id
-      WHERE r.place_id = $1
-      ORDER BY r.created_at DESC`,
-    [placeId]
-  );
+    ` SELECT
+      r.review_id,
+      r.place_id,
+      r.rating,
+      r.content,
+      r.created_at,
+      u.full_name
+    FROM review r
+    JOIN "user" u
+      ON r.user_id = u.user_id
+    WHERE r.place_id = $1
+    ORDER BY r.created_at DESC
+  `, [placeId]);
   return res.rows;
 };
 

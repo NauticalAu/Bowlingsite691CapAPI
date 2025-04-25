@@ -79,6 +79,8 @@ router.get('/search', async (req, res) => {
     }
   });
   
+router.get('/:placeId', alleyController.getAlleyByPlaceId);
+
 
 module.exports = router;
 // This code defines a route for searching bowling alleys by ZIP code using the Google Places API.
