@@ -7,9 +7,9 @@ const {
   getAlleyByPlaceId
 } = require('../controllers/alleyController');
 
-// GET /api/alleys?zip=#####  
+// GET /api/alleys/search?zip=#####  
 router.get(
-  '/',
+  '/search',
   (req, res, next) => {
     logger.info(`🎳 Alley search by ZIP: ${req.query.zip}`);
     next();
