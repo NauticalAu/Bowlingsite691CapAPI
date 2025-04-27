@@ -66,30 +66,27 @@ exports.update = async (tournamentId, changes) => {
 exports.join = async (tournamentId, userId) => {
   await db.query(
     `INSERT INTO tournament_participants (tournament_id, user_id)
-     VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+       VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
     [tournamentId, userId]
   );
-  return { message: 'Joined tournament' };
-};
 
 // Leave a tournament (✅ already correct)
 exports.leave = async (tournamentId, userId) => {
   await db.query(
     `DELETE FROM tournament_participants
-     WHERE tournament_id = $1 AND user_id = $2`,
+       WHERE tournament_id = $1
+         AND user_id = $2`,
     [tournamentId, userId]
   );
-  return { message: 'Left tournament' };
-};
 
 // Get participants of a tournament
 exports.getParticipants = async (tournamentId) => {
   const result = await db.query(
     `SELECT u.user_id, u.full_name
-     FROM tournament_participants tp
-     JOIN "user" u
-       ON tp.user_id = u.user_id
-     WHERE tp.tournament_id = $1`,
+       FROM tournament_participants tp
+       JOIN "user"             u ON tp.user_id = u.user_id
+      WHERE tp.tournament_id = $1`,
     [tournamentId]
   );
   return result.rows;
