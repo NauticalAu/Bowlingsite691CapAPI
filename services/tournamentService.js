@@ -87,7 +87,8 @@ exports.getParticipants = async (tournamentId) => {
   const result = await db.query(
     `SELECT u.user_id, u.full_name
      FROM tournament_participants tp
-     JOIN users u ON tp.user_id = u.user_id
+     JOIN "user" u
+       ON tp.user_id = u.user_id
      WHERE tp.tournament_id = $1`,
     [tournamentId]
   );

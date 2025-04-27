@@ -1,34 +1,31 @@
-const express = require('express');
-const router = express.Router();
-const tournamentController = require('../controllers/tournamentController');
-const tournamentService    = require('../services/tournamentService');
+// src/routes/tournamentRoutes.js
+const express              = require('express');
+const router               = express.Router();
 const authenticate         = require('../middleware/auth');
+const tournamentController = require('../controllers/tournamentController');
 
-// List & create
-router.get('/', tournamentController.getAllTournaments);
-router.post('/', tournamentController.createTournament);
+// List all & create new
+router
+  .route('/')
+  .get(tournamentController.getAllTournaments)
+  .post(authenticate, tournamentController.createTournament);
 
-// Join & leave
-router.post('/:id/join', authenticate, tournamentController.joinTournament);
-router.delete('/:id/leave', tournamentController.leaveTournament);
+// Join & leave a tournament
+router
+  .post('/:id/join', authenticate, tournamentController.joinTournament)
+  .delete('/:id/leave', authenticate, tournamentController.leaveTournament);
 
-// Participants
-router.get('/:id/participants', async (req, res) => {
-  try {
-    const participants = await tournamentService.getParticipants(req.params.id);
-    res.json(participants);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to load participants' });
-  }
-});
+// List participants
+router.get('/:id/participants', authenticate, tournamentController.getParticipants);
 
-// By alley
+// Tournaments by alley
 router.get('/alley/:alleyId', tournamentController.getTournamentsByAlleyId);
 
-// Fetch, update, delete a single tournament
-router.get('/:id', tournamentController.getTournamentById);
-router.put('/:id', tournamentController.updateTournament);
-router.delete('/:id', tournamentController.deleteTournament);
+// Fetch / update / delete one tournament
+router
+  .route('/:id')
+  .get(tournamentController.getTournamentById)
+  .put(authenticate, tournamentController.updateTournament)
+  .delete(authenticate, tournamentController.deleteTournament);
 
 module.exports = router;

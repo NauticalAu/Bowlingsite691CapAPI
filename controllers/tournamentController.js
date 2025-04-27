@@ -11,8 +11,22 @@ exports.getTournamentById = async (req, res) => {
 };
 
 exports.createTournament = async (req, res) => {
-  const result = await tournamentService.create(req.body);
-  res.status(201).json(result);
+  const organizer_id = req.session.userId;
+  const { name, description, start_date, end_date, alley_id } = req.body;
+  try {
+    const result = await tournamentService.create({
+      name,
+      description,
+      start_date,
+      end_date,
+      alley_id,
+      organizer_id
+    });
+    res.status(201).json(result);
+  } catch (err) {
+    console.error('❌ Failed to create tournament:', err);
+    res.status(500).json({ error: 'Failed to create tournament' });
+  }
 };
 
 exports.joinTournament = async (req, res) => {
