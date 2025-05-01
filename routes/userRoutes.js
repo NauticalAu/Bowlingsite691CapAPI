@@ -2,14 +2,28 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 
-// Register route
-router.post('/register', (req, res, next) => {
-  console.log('📩 /api/users/register hit!');
-  next();
-}, userController.register);
+// NEW: import your validation rules + shared validator
+const { registerRules, loginRules, validate } = require('../validators/userValidator');
 
-// Login route
-router.post('/login', userController.login);
+// Register route (with validation + logging)
+router.post(
+  '/register',
+  registerRules,                // 1) run validation checks
+  validate,                     // 2) bail out with 400 + errors if invalid
+  (req, res, next) => {         // 3) your existing log middleware
+    console.log('📩 /api/users/register hit!');
+    next();
+  },
+  userController.register       // 4) actual controller
+);
+
+// Login route (with validation)
+router.post(
+  '/login',
+  loginRules,                   // 1) ensure email/password shape
+  validate,                     // 2) return 400 if invalid
+  userController.login          // 3) then call your login handler
+);
 
 // Session check route
 router.get('/me', (req, res) => {
@@ -27,18 +41,24 @@ router.get('/test', (req, res) => {
 
 // Logout route
 router.post('/logout', (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('Logout error:', err);
-        return res.status(500).json({ error: 'Logout failed' });
-      }
-      res.clearCookie('connect.sid'); // optional, clears session cookie
-      res.json({ message: 'Logged out successfully' });
-    });
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+    res.clearCookie('connect.sid'); 
+    res.json({ message: 'Logged out successfully' });
   });
+});
 
-router.put('/profile', userController.updateProfile);  
+// Profile update
+router.put('/profile', userController.updateProfile);
+
+// Password change
 router.put('/change-password', userController.changePassword);
+
+module.exports = router;
+
 
 // // This code sets up a route for user registration.
 // // It uses Express.js to create a router.
@@ -50,6 +70,4 @@ router.put('/change-password', userController.changePassword);
 // // The /test endpoint is a basic health check.
 // // Finally, it includes a logout route that destroys the session and clears the session cookie.
 // // The router is exported for use in the main server file.
-  
 
-module.exports = router;
