@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { createScoreRules, validate } = require('../validators/scoreValidator');
 const gameController = require('../controllers/gameController');
 
 // Start a new game
