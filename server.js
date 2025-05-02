@@ -77,6 +77,3 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
 });
-db.connect()
-  .then(() => logger.info('PostgreSQL connected'))
-  .catch(err => logger.error(`PostgreSQL connection error: ${err}`));
