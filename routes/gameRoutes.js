@@ -7,10 +7,18 @@ const gameController = require('../controllers/gameController');
 router.post('/start', gameController.startGame);
 
 // Submit score for a game
-router.post('/score', gameController.submitScore);
+router.post(
+    '/score',
+    createScoreRules,
+    validate,
+     gameController.submitScore
+    );
 
 // Get score summary
 router.get('/summary', gameController.getSummary);
+
+// DELETE /api/games
+router.delete('/', gameController.deleteAllGames);
 
 module.exports = router;
 // This code sets up routes for a bowling game API.

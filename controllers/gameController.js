@@ -1,35 +1,36 @@
 const Game = require('../models/gameModel');
-const { calculateScores } = require('../services/scoreService'); 
+const { calculateScores } = require('../services/scoreService');
 
-const startGame = async (req, res) => {
+// Start a new game
+const startGame = async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const game = await Game.createGame(userId);
     res.status(201).json({ message: 'Game started', game });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to start game' });
+    next(err);
   }
 };
 
-const submitScore = async (req, res) => {
+// Submit a frame’s score
+const submitScore = async (req, res, next) => {
   try {
-    const { gameId, frame, firstRoll, secondRoll, bonusRoll } = req.body;
+    const { gameId, frameNumber, firstRoll, secondRoll, bonusRoll } = req.body;
 
-    if (!gameId || !frame || firstRoll == null) {
+    if (!gameId || !frameNumber || firstRoll == null) {
       return res.status(400).json({ error: 'Missing required score fields' });
     }
 
     const result = await Game.addScore(
       gameId,
-      frame,
+      frameNumber,
       firstRoll,
-      secondRoll || null,
-      bonusRoll || null
+      secondRoll ?? null,
+      bonusRoll ?? null
     );
 
-    // Recalculate scores
-    const totalScore = await calculateScores(gameId); // make sure this updates DB
+    // Recalculate total (and persist, if your service does that)
+    const totalScore = await calculateScores(gameId);
 
     res.json({
       message: 'Score submitted and calculated',
@@ -37,27 +38,35 @@ const submitScore = async (req, res) => {
       totalScore
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to submit score' });
+    next(err);
   }
 };
-// Fetch game summary for the user
 
-const getSummary = async (req, res) => {
+// Fetch the user’s full game summary
+const getSummary = async (req, res, next) => {
   try {
     const userId = req.session.userId;
-    console.log('🔍 userId from session:', userId);
-
     const summary = await Game.getUserGames(userId);
     res.json({ summary });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch game summary' });
+    next(err);
+  }
+};
+
+// Delete all games for the user
+const deleteAllGames = async (req, res, next) => {
+  try {
+    const userId = req.session.userId;
+    await Game.deleteAllGames(userId);
+    res.json({ message: 'All games deleted' });
+  } catch (err) {
+    next(err);
   }
 };
 
 module.exports = {
   startGame,
   submitScore,
-  getSummary
+  getSummary,
+  deleteAllGames
 };

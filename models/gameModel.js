@@ -9,43 +9,32 @@ const createGame = async (userId) => {
 };
 
 const addScore = async (gameId, frameNumber, firstRoll, secondRoll = null, bonusRoll = null) => {
-  console.log('📥 addScore():', {
-    gameId,
-    frameNumber,
-    firstRoll,
-    secondRoll,
-    bonusRoll
-  });
+  console.log('📥 addScore():', { gameId, frameNumber, firstRoll, secondRoll, bonusRoll });
 
-  try {
-    const result = await db.query(
-      `INSERT INTO frame (game_id, frame_number, first_roll, second_roll, bonus_roll)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [gameId, frameNumber, firstRoll, secondRoll, bonusRoll]
-    );
+  const result = await db.query(
+    `INSERT INTO frame (game_id, frame_number, first_roll, second_roll, bonus_roll)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
+    [gameId, frameNumber, firstRoll, secondRoll, bonusRoll]
+  );
+  console.log('✅ Frame saved:', result.rows[0]);
 
-    console.log('✅ Frame saved:', result.rows[0]);
+  await db.query(
+    `UPDATE game
+     SET total_score = (
+       SELECT COALESCE(SUM(
+         COALESCE(first_roll, 0) +
+         COALESCE(second_roll, 0) +
+         COALESCE(bonus_roll, 0)
+       ), 0)
+       FROM frame
+       WHERE game_id = $1
+     )
+     WHERE game_id = $1`,
+    [gameId]
+  );
 
-    // ✅ Update total_score in the game table after insert
-    await db.query(
-      `UPDATE game
-       SET total_score = (
-         SELECT COALESCE(SUM(
-           COALESCE(first_roll, 0) + COALESCE(second_roll, 0) + COALESCE(bonus_roll, 0)
-         ), 0)
-         FROM frame
-         WHERE game_id = $1
-       )
-       WHERE game_id = $1`,
-      [gameId]
-    );
-
-    return result.rows[0];
-  } catch (err) {
-    console.error('❌ Frame insert error:', err.message);
-    throw err;
-  }
+  return result.rows[0];
 };
 
 const getUserGames = async (userId) => {
@@ -56,7 +45,8 @@ const getUserGames = async (userId) => {
       f.first_roll,
       f.second_roll,
       f.bonus_roll,
-      f.frame_score
+      f.frame_score,
+      g.created_at
     FROM game g
     JOIN frame f ON g.game_id = f.game_id
     WHERE g.user_id = $1
@@ -66,11 +56,29 @@ const getUserGames = async (userId) => {
   return result.rows;
 };
 
+const deleteAllGames = async (userId) => {
+  // Delete all frames for this user’s games
+  await db.query(
+    `DELETE FROM frame
+     WHERE game_id IN (
+       SELECT game_id FROM game WHERE user_id = $1
+     )`,
+    [userId]
+  );
+  // Then delete the games themselves
+  await db.query(
+    `DELETE FROM game WHERE user_id = $1`,
+    [userId]
+  );
+};
+
 module.exports = {
   createGame,
   addScore,
-  getUserGames
+  getUserGames,
+  deleteAllGames
 };
+
 
 // This code defines a gameModel for managing bowling games.
 // It uses the pg library to interact with a PostgreSQL database.
