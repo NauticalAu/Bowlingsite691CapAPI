@@ -4,33 +4,33 @@ const db = require('../config/db');
 // Get all upcoming tournaments
 exports.getAll = async () => {
   const { rows } = await db.query(`
-    SELECT t.*, a.name AS alley_name
-      FROM tournament t
-      LEFT JOIN bowling_alleys a
-        ON t.bowling_alley_id = a.id
-     WHERE t.start_date >= CURRENT_DATE
-     ORDER BY t.start_date ASC
+    SELECT *
+      FROM tournament
+     WHERE start_date >= CURRENT_DATE
+     ORDER BY start_date ASC
   `);
   return rows;
 };
 
 // Get tournament by ID
-exports.getById = async (id) => {
+exports.getById = async (tournamentId) => {
   const { rows } = await db.query(
-    'SELECT * FROM tournament WHERE tournament_id = $1',
-    [id]
+    `SELECT *
+       FROM tournament
+      WHERE tournament_id = $1`,
+    [tournamentId]
   );
   return rows[0] || null;
 };
 
 // Create a new tournament
-exports.create = async ({ name, description, start_date, end_date, bowling_alley_id, organizer_id }) => {
+exports.create = async ({ name, description, start_date, end_date }) => {
   const { rows } = await db.query(
     `INSERT INTO tournament
-       (name, description, start_date, end_date, bowling_alley_id, organizer_id)
-     VALUES ($1, $2, $3, $4, $5, $6)
+       (name, description, start_date, end_date)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [name, description, start_date, end_date, bowling_alley_id, organizer_id]
+    [name, description, start_date, end_date]
   );
   return rows[0];
 };
@@ -99,24 +99,3 @@ exports.getParticipants = async (tournamentId) => {
   return rows;
 };
 
-// Get tournaments by alley ID
-exports.getByAlleyId = async (bowling_alley_id) => {
-  const { rows } = await db.query(
-    `SELECT * FROM tournament
-      WHERE bowling_alley_id = $1
-      ORDER BY start_date`,
-    [bowling_alley_id]
-  );
-  return rows;
-};
-
-// Get tournaments by organizer ID
-exports.getByOrganizerId = async (organizer_id) => {
-  const { rows } = await db.query(
-    `SELECT * FROM tournament
-      WHERE organizer_id = $1
-      ORDER BY start_date`,
-    [organizer_id]
-  );
-  return rows;
-};

@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-
-// NEW: import your validation rules + shared validator
 const { registerRules, loginRules, validate } = require('../validators/userValidator');
 
 // Register route (with validation + logging)
