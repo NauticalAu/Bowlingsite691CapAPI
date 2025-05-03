@@ -1,6 +1,9 @@
 # Bowlingsite691CapAPI
 APi for Capstone Bowling Site
 
+## Live Demo
+- **API**: https://bowling-api.onrender.com  
+
 ## Project Overview
 The Bowling Hub API provides backend services for user authentication, score tracking, league management, alley search, and event handling.
 
@@ -13,7 +16,8 @@ The Bowling Hub API provides backend services for user authentication, score tra
 - **Stretch Features**: User reviews and ratings for alleys.
 
 ## Tech Stack
-- **Backend Framework**: (e.g., Express.js, Django, FastAPI)
+- **Backend Framework:** Express.js v4.x
+- **Node.js:** ≥14.x, **npm:** ≥6.x  
 - **Database**: PostgreSQL
 - **Authentication**: Session-based authentication
 - **API Documentation**: (Swagger/Postman collection)
