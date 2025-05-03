@@ -24,14 +24,6 @@ The Bowling Hub API provides backend services for user authentication, score tra
   - Swagger UI: https://bowling-api.onrender.com/api/docs  
   - Postman Collection: `docs/BowlingSite.postman_collection.json`
 
-## Environment Variables
-
-Copy and fill in your own values:
-
-```bash
-cp .env.example .env
-
-
 | Variable         | Description                                    |
 | ---------------- | ---------------------------------------------- |
 | `PORT`           | Port for Express (default: 8080)               |
@@ -49,10 +41,10 @@ POST   /api/games/score          # Submit a frame’s score
 GET    /api/games/summary        # Retrieve all games’ summaries
 DELETE /api/games                # Delete all games for the authenticated user
 
-# Other routes:
-# /api/profile, /api/leagues, /api/tournaments,
-# /api/alleys, /api/leaderboard, /api/blog,
-# /api/favorites, /api/places/:placeId/reviews
+### Other routes:
+### /api/profile, /api/leagues, /api/tournaments,
+### /api/alleys, /api/leaderboard, /api/blog,
+### /api/favorites, /api/places/:placeId/reviews
 
 
 ## Development Workflow
@@ -64,3 +56,10 @@ Tech Tasks (UI)
 
 Related Repositories
 UI Repo: https://github.com/NauticalAu/BowlingSite691CapUI
+
+## Environment Variables
+
+Copy and fill in your own values:
+
+```bash
+cp .env.example .env
